@@ -1,0 +1,86 @@
+package co.edu.usbcali.ecommerceusb.service.impl;
+
+import co.edu.usbcali.ecommerceusb.dto.CreateProductCategoryRequest;
+import co.edu.usbcali.ecommerceusb.dto.ProductCategoryResponse;
+import co.edu.usbcali.ecommerceusb.mapper.ProductCategoryMapper;
+import co.edu.usbcali.ecommerceusb.model.Category;
+import co.edu.usbcali.ecommerceusb.model.Product;
+import co.edu.usbcali.ecommerceusb.model.ProductCategory;
+import co.edu.usbcali.ecommerceusb.repository.CategoryRepository;
+import co.edu.usbcali.ecommerceusb.repository.ProductCategoryRepository;
+import co.edu.usbcali.ecommerceusb.repository.ProductRepository;
+import co.edu.usbcali.ecommerceusb.service.ProductCategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class ProductCategoryServiceImpl implements ProductCategoryService {
+
+    @Autowired
+    private ProductCategoryRepository productCategoryRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Override
+    public List<ProductCategoryResponse> getProductCategories() {
+        List<ProductCategory> productCategories = productCategoryRepository.findAll();
+
+        if (productCategories.isEmpty()) {
+            return List.of();
+        }
+
+        return ProductCategoryMapper.modelToProductCategoryResponseList(productCategories);
+    }
+
+    @Override
+    public ProductCategoryResponse getProductCategoryById(Integer id) throws Exception {
+
+        if (id == null || id <= 0) {
+            throw new Exception("Debe ingresar el id para buscar");
+        }
+
+        ProductCategory productCategory = productCategoryRepository.findById(id.longValue())
+                .orElseThrow(() ->
+                        new Exception(
+                                String.format("Relación producto-categoría no encontrada con el id: %d", id)));
+
+        return ProductCategoryMapper.modelToProductCategoryResponse(productCategory);
+    }
+
+    @Override
+    public ProductCategoryResponse createProductCategory(
+            CreateProductCategoryRequest createProductCategoryRequest) throws Exception {
+
+        // Validar que el campo productId no sea nulo ni <= 0
+        if (createProductCategoryRequest.getProductId() == null ||
+                createProductCategoryRequest.getProductId() <= 0) {
+            throw new Exception("El campo productId debe contener un valor mayor a 0");
+        }
+
+        // Validar que el campo categoryId no sea nulo ni <= 0
+        if (createProductCategoryRequest.getCategoryId() == null ||
+                createProductCategoryRequest.getCategoryId() <= 0) {
+            throw new Exception("El campo categoryId debe contener un valor mayor a 0");
+        }
+
+        // Validar que el producto existe
+        Product product = productRepository.findById(createProductCategoryRequest.getProductId().longValue())
+                .orElseThrow(() -> new Exception("El producto no existe"));
+
+        // Validar que la categoría existe
+        Category category = categoryRepository.findById(createProductCategoryRequest.getCategoryId().longValue())
+                .orElseThrow(() -> new Exception("La categoría no existe"));
+
+        ProductCategory productCategory = ProductCategoryMapper.createProductCategoryRequestToProductCategory(
+                product, category);
+
+        productCategory = productCategoryRepository.save(productCategory);
+        return ProductCategoryMapper.modelToProductCategoryResponse(productCategory);
+    }
+}
