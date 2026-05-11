@@ -1,6 +1,7 @@
 package co.edu.usbcali.ecommerceusb.controller;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateCategoryRequest;
+import co.edu.usbcali.ecommerceusb.dto.UpdateCategoryRequest;
 import co.edu.usbcali.ecommerceusb.dto.CategoryResponse;
 import co.edu.usbcali.ecommerceusb.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,17 @@ public class CategoryController {
         return new ResponseEntity<>(
                 categoryService.createCategory(createCategoryRequest),
                 HttpStatus.CREATED
+        );
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoryResponse> updateCategory(
+            @PathVariable Integer id,
+            @RequestBody UpdateCategoryRequest updateCategoryRequest) throws Exception {
+        return new ResponseEntity<>(
+                categoryService.updateCategory(id, updateCategoryRequest),
+                HttpStatus.OK
         );
     }
 }

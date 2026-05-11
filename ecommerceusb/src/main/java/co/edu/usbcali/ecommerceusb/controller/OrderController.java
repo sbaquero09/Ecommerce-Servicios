@@ -1,6 +1,7 @@
 package co.edu.usbcali.ecommerceusb.controller;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateOrderRequest;
+import co.edu.usbcali.ecommerceusb.dto.UpdateOrderRequest;
 import co.edu.usbcali.ecommerceusb.dto.OrderResponse;
 import co.edu.usbcali.ecommerceusb.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,17 @@ public class OrderController {
         return new ResponseEntity<>(
                 orderService.createOrder(createOrderRequest),
                 HttpStatus.CREATED
+        );
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<OrderResponse> updateOrder(
+            @PathVariable Integer id,
+            @RequestBody UpdateOrderRequest updateOrderRequest) throws Exception {
+        return new ResponseEntity<>(
+                orderService.updateOrder(id, updateOrderRequest),
+                HttpStatus.OK
         );
     }
 }
