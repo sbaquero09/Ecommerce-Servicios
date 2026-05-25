@@ -121,4 +121,12 @@ public class CartItemServiceImpl implements CartItemService {
         cartItem = cartItemRepository.save(cartItem);
         return CartItemMapper.modelToCartItemResponse(cartItem);
     }
+
+    @Override
+    public void deleteCartItem(Integer id) throws Exception {
+        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para eliminar");
+        if (!cartItemRepository.existsById(id))
+            throw new Exception(String.format("Item de carrito no encontrado con el id: %d", id));
+        cartItemRepository.deleteById(id);
+    }
 }

@@ -141,4 +141,12 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderItem = orderItemRepository.save(orderItem);
         return OrderItemMapper.modelToOrderItemResponse(orderItem);
     }
+
+    @Override
+    public void deleteOrderItem(Integer id) throws Exception {
+        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para eliminar");
+        if (!orderItemRepository.existsById(id))
+            throw new Exception(String.format("Item de orden no encontrado con el id: %d", id));
+        orderItemRepository.deleteById(id);
+    }
 }

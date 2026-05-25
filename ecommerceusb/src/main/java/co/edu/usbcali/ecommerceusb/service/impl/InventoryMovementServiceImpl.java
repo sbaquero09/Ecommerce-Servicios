@@ -22,129 +22,80 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
 
     @Autowired
     private InventoryMovementRepository inventoryMovementRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private OrderRepository orderRepository;
 
     @Override
     public List<InventoryMovementResponse> getInventoryMovements() {
-        List<InventoryMovement> inventoryMovements = inventoryMovementRepository.findAll();
-
-        if (inventoryMovements.isEmpty()) {
-            return List.of();
-        }
-
-        return InventoryMovementMapper.modelToInventoryMovementResponseList(inventoryMovements);
+        List<InventoryMovement> list = inventoryMovementRepository.findAll();
+        if (list.isEmpty()) return List.of();
+        return InventoryMovementMapper.modelToInventoryMovementResponseList(list);
     }
 
     @Override
     public InventoryMovementResponse getInventoryMovementById(Integer id) throws Exception {
-
-        if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
-        }
-
-        InventoryMovement inventoryMovement = inventoryMovementRepository.findById(id)
-                .orElseThrow(() ->
-                        new Exception(
-                                String.format("Movimiento de inventario no encontrado con el id: %d", id)));
-
-        return InventoryMovementMapper.modelToInventoryMovementResponse(inventoryMovement);
+        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para buscar");
+        InventoryMovement im = inventoryMovementRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("Movimiento de inventario no encontrado con el id: %d", id)));
+        return InventoryMovementMapper.modelToInventoryMovementResponse(im);
     }
 
     @Override
-    public InventoryMovementResponse createInventoryMovement(
-            CreateInventoryMovementRequest createInventoryMovementRequest) throws Exception {
-
-        if (createInventoryMovementRequest.getProductId() == null ||
-                createInventoryMovementRequest.getProductId() <= 0) {
+    public InventoryMovementResponse createInventoryMovement(CreateInventoryMovementRequest req) throws Exception {
+        if (req.getProductId() == null || req.getProductId() <= 0)
             throw new Exception("El campo productId debe contener un valor mayor a 0");
-        }
-
-        if (Objects.isNull(createInventoryMovementRequest.getType()) ||
-                createInventoryMovementRequest.getType().isBlank()) {
+        if (Objects.isNull(req.getType()) || req.getType().isBlank())
             throw new Exception("El campo type no puede ser nulo ni vacío");
-        }
-
-        InventoryMovement.MovementType movementType;
-        try {
-            movementType = InventoryMovement.MovementType.valueOf(createInventoryMovementRequest.getType());
-        } catch (IllegalArgumentException e) {
-            throw new Exception("El type debe ser uno de: DEBIT, CREDIT, RESERVE, RELEASE");
-        }
-
-        if (createInventoryMovementRequest.getQty() == null || createInventoryMovementRequest.getQty() <= 0) {
+        if (req.getQty() == null || req.getQty() <= 0)
             throw new Exception("El campo qty debe contener un valor mayor a 0");
-        }
 
-        Product product = productRepository.findById(createInventoryMovementRequest.getProductId())
+        Product product = productRepository.findById(req.getProductId())
                 .orElseThrow(() -> new Exception("El producto no existe"));
-
         Order order = null;
-        if (createInventoryMovementRequest.getOrderId() != null) {
-            order = orderRepository.findById(createInventoryMovementRequest.getOrderId())
+        if (req.getOrderId() != null)
+            order = orderRepository.findById(req.getOrderId())
                     .orElseThrow(() -> new Exception("La orden no existe"));
-        }
 
-        InventoryMovement inventoryMovement = InventoryMovementMapper.createInventoryMovementRequestToInventoryMovement(
-                product, order, movementType, createInventoryMovementRequest.getQty());
-
-        inventoryMovement = inventoryMovementRepository.save(inventoryMovement);
-        return InventoryMovementMapper.modelToInventoryMovementResponse(inventoryMovement);
+        InventoryMovement im = InventoryMovementMapper.createInventoryMovementRequestToInventoryMovement(
+                product, order, InventoryMovement.MovementType.valueOf(req.getType()), req.getQty());
+        im = inventoryMovementRepository.save(im);
+        return InventoryMovementMapper.modelToInventoryMovementResponse(im);
     }
 
     @Override
-    public InventoryMovementResponse updateInventoryMovement(
-            Integer id, UpdateInventoryMovementRequest updateInventoryMovementRequest) throws Exception {
-
-        if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para actualizar");
-        }
-
-        if (updateInventoryMovementRequest.getProductId() == null ||
-                updateInventoryMovementRequest.getProductId() <= 0) {
+    public InventoryMovementResponse updateInventoryMovement(Integer id, UpdateInventoryMovementRequest req) throws Exception {
+        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para actualizar");
+        if (req.getProductId() == null || req.getProductId() <= 0)
             throw new Exception("El campo productId debe contener un valor mayor a 0");
-        }
-
-        if (Objects.isNull(updateInventoryMovementRequest.getType()) ||
-                updateInventoryMovementRequest.getType().isBlank()) {
+        if (Objects.isNull(req.getType()) || req.getType().isBlank())
             throw new Exception("El campo type no puede ser nulo ni vacío");
-        }
-
-        InventoryMovement.MovementType movementType;
-        try {
-            movementType = InventoryMovement.MovementType.valueOf(updateInventoryMovementRequest.getType());
-        } catch (IllegalArgumentException e) {
-            throw new Exception("El type debe ser uno de: DEBIT, CREDIT, RESERVE, RELEASE");
-        }
-
-        if (updateInventoryMovementRequest.getQty() == null || updateInventoryMovementRequest.getQty() <= 0) {
+        if (req.getQty() == null || req.getQty() <= 0)
             throw new Exception("El campo qty debe contener un valor mayor a 0");
-        }
 
-        InventoryMovement inventoryMovement = inventoryMovementRepository.findById(id)
-                .orElseThrow(() ->
-                        new Exception(
-                                String.format("Movimiento de inventario no encontrado con el id: %d", id)));
-
-        Product product = productRepository.findById(updateInventoryMovementRequest.getProductId())
+        InventoryMovement im = inventoryMovementRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("Movimiento de inventario no encontrado con el id: %d", id)));
+        Product product = productRepository.findById(req.getProductId())
                 .orElseThrow(() -> new Exception("El producto no existe"));
-
         Order order = null;
-        if (updateInventoryMovementRequest.getOrderId() != null) {
-            order = orderRepository.findById(updateInventoryMovementRequest.getOrderId())
+        if (req.getOrderId() != null)
+            order = orderRepository.findById(req.getOrderId())
                     .orElseThrow(() -> new Exception("La orden no existe"));
-        }
 
-        inventoryMovement.setProduct(product);
-        inventoryMovement.setOrder(order);
-        inventoryMovement.setType(movementType);
-        inventoryMovement.setQty(updateInventoryMovementRequest.getQty());
+        im.setProduct(product);
+        im.setOrder(order);
+        im.setType(InventoryMovement.MovementType.valueOf(req.getType()));
+        im.setQty(req.getQty());
+        im = inventoryMovementRepository.save(im);
+        return InventoryMovementMapper.modelToInventoryMovementResponse(im);
+    }
 
-        inventoryMovement = inventoryMovementRepository.save(inventoryMovement);
-        return InventoryMovementMapper.modelToInventoryMovementResponse(inventoryMovement);
+    @Override
+    public void deleteInventoryMovement(Integer id) throws Exception {
+        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para eliminar");
+        if (!inventoryMovementRepository.existsById(id))
+            throw new Exception(String.format("Movimiento de inventario no encontrado con el id: %d", id));
+        inventoryMovementRepository.deleteById(id);
     }
 }

@@ -11,4 +11,5 @@ public interface ProductCategoryService {
     ProductCategoryResponse getProductCategoryById(Integer id) throws Exception;
     ProductCategoryResponse createProductCategory(CreateProductCategoryRequest createProductCategoryRequest) throws Exception;
     ProductCategoryResponse updateProductCategory(Integer id, UpdateProductCategoryRequest updateProductCategoryRequest) throws Exception;
+    void deleteProductCategory(Integer id) throws Exception;
 }

@@ -50,4 +50,10 @@ public class InventoryMovementController {
                 HttpStatus.OK
         );
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteInventoryMovement(@PathVariable Integer id) throws Exception {
+        inventoryMovementService.deleteInventoryMovement(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

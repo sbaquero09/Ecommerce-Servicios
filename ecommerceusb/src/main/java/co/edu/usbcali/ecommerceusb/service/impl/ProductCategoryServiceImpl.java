@@ -90,4 +90,12 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                 "La combinación product_id + category_id es única. " +
                 "Si necesita cambiarla, elimine este registro y cree uno nuevo con POST.");
     }
+
+    @Override
+    public void deleteProductCategory(Integer id) throws Exception {
+        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para eliminar");
+        if (!productCategoryRepository.existsById(id))
+            throw new Exception(String.format("Relación producto-categoría no encontrado con el id: %d", id));
+        productCategoryRepository.deleteById(id);
+    }
 }

@@ -50,4 +50,10 @@ public class CartItemController {
                 HttpStatus.OK
         );
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCartItem(@PathVariable Integer id) throws Exception {
+        cartItemService.deleteCartItem(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

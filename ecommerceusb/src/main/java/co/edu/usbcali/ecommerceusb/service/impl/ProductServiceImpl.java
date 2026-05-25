@@ -102,4 +102,12 @@ public class ProductServiceImpl implements ProductService {
         product = productRepository.save(product);
         return ProductMapper.modelToProductResponse(product);
     }
+
+    @Override
+    public void deleteProduct(Integer id) throws Exception {
+        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para eliminar");
+        if (!productRepository.existsById(id))
+            throw new Exception(String.format("Producto no encontrado con el id: %d", id));
+        productRepository.deleteById(id);
+    }
 }

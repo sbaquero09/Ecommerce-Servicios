@@ -50,4 +50,10 @@ public class OrderItemController {
                 HttpStatus.OK
         );
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer id) throws Exception {
+        orderItemService.deleteOrderItem(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

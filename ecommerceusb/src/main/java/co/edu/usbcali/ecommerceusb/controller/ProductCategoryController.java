@@ -51,4 +51,10 @@ public class ProductCategoryController {
                 HttpStatus.BAD_REQUEST
         );
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProductCategory(@PathVariable Integer id) throws Exception {
+        productCategoryService.deleteProductCategory(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

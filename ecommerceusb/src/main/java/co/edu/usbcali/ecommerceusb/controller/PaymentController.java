@@ -50,4 +50,10 @@ public class PaymentController {
                 HttpStatus.OK
         );
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePayment(@PathVariable Integer id) throws Exception {
+        paymentService.deletePayment(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
