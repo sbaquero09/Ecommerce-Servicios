@@ -1,4 +1,6 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateInventoryRequest;
 import co.edu.usbcali.ecommerceusb.dto.InventoryResponse;
@@ -39,7 +41,7 @@ public class InventoryServiceImpl implements InventoryService {
     public InventoryResponse getInventoryById(Integer id) throws Exception {
 
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
+            throw new BadRequestException("Debe ingresar el id para buscar");
         }
 
         Inventory inventory = inventoryRepository.findById(id)
@@ -54,19 +56,19 @@ public class InventoryServiceImpl implements InventoryService {
     public InventoryResponse createInventory(CreateInventoryRequest createInventoryRequest) throws Exception {
 
         if (createInventoryRequest.getProductId() == null || createInventoryRequest.getProductId() <= 0) {
-            throw new Exception("El campo productId debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo productId debe contener un valor mayor a 0");
         }
 
         if (createInventoryRequest.getStock() == null) {
-            throw new Exception("El campo stock no puede ser nulo");
+            throw new BadRequestException("El campo stock no puede ser nulo");
         }
 
         if (createInventoryRequest.getStock() < 0) {
-            throw new Exception("El campo stock no puede ser negativo");
+            throw new BadRequestException("El campo stock no puede ser negativo");
         }
 
         Product product = productRepository.findById(createInventoryRequest.getProductId())
-                .orElseThrow(() -> new Exception("El producto no existe"));
+                .orElseThrow(() -> new NotFoundException("El producto no existe"));
 
         Inventory inventory = InventoryMapper.createInventoryRequestToInventory(
                 product, createInventoryRequest.getStock());
@@ -79,15 +81,15 @@ public class InventoryServiceImpl implements InventoryService {
     public InventoryResponse updateInventory(Integer id, UpdateInventoryRequest updateInventoryRequest) throws Exception {
 
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para actualizar");
+            throw new BadRequestException("Debe ingresar el id para actualizar");
         }
 
         if (updateInventoryRequest.getStock() == null) {
-            throw new Exception("El campo stock no puede ser nulo");
+            throw new BadRequestException("El campo stock no puede ser nulo");
         }
 
         if (updateInventoryRequest.getStock() < 0) {
-            throw new Exception("El campo stock no puede ser negativo");
+            throw new BadRequestException("El campo stock no puede ser negativo");
         }
 
         Inventory inventory = inventoryRepository.findById(id)
@@ -106,9 +108,9 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public void deleteInventory(Integer id) throws Exception {
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para eliminar");
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para eliminar");
         if (!inventoryRepository.existsById(id))
-            throw new Exception(String.format("Inventario no encontrado con el id: %d", id));
+            throw new NotFoundException(String.format("Inventario no encontrado con el id: %d", id));
         inventoryRepository.deleteById(id);
     }
 }

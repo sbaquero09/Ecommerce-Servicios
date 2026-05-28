@@ -1,4 +1,6 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.mapper.DocumentTypeMapper;
@@ -31,7 +33,7 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     public DocumentTypeResponse getDocumentTypeById(Integer id) throws Exception {
 
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
+            throw new BadRequestException("Debe ingresar el id para buscar");
         }
 
         DocumentType documentType = documentTypeRepository.findById(id)

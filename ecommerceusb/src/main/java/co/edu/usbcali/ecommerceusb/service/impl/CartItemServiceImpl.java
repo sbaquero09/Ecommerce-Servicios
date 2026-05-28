@@ -1,4 +1,6 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 
 import co.edu.usbcali.ecommerceusb.dto.CartItemResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCartItemRequest;
@@ -44,7 +46,7 @@ public class CartItemServiceImpl implements CartItemService {
     public CartItemResponse getCartItemById(Integer id) throws Exception {
 
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
+            throw new BadRequestException("Debe ingresar el id para buscar");
         }
 
         CartItem cartItem = cartItemRepository.findById(id)
@@ -59,22 +61,22 @@ public class CartItemServiceImpl implements CartItemService {
     public CartItemResponse createCartItem(CreateCartItemRequest createCartItemRequest) throws Exception {
 
         if (createCartItemRequest.getCartId() == null || createCartItemRequest.getCartId() <= 0) {
-            throw new Exception("El campo cartId debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo cartId debe contener un valor mayor a 0");
         }
 
         if (createCartItemRequest.getProductId() == null || createCartItemRequest.getProductId() <= 0) {
-            throw new Exception("El campo productId debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo productId debe contener un valor mayor a 0");
         }
 
         if (createCartItemRequest.getQuantity() == null || createCartItemRequest.getQuantity() <= 0) {
-            throw new Exception("El campo quantity debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo quantity debe contener un valor mayor a 0");
         }
 
         Cart cart = cartRepository.findById(createCartItemRequest.getCartId())
-                .orElseThrow(() -> new Exception("El carrito no existe"));
+                .orElseThrow(() -> new NotFoundException("El carrito no existe"));
 
         Product product = productRepository.findById(createCartItemRequest.getProductId())
-                .orElseThrow(() -> new Exception("El producto no existe"));
+                .orElseThrow(() -> new NotFoundException("El producto no existe"));
 
         CartItem cartItem = CartItemMapper.createCartItemRequestToCartItem(
                 cart, product, createCartItemRequest.getQuantity());
@@ -87,19 +89,19 @@ public class CartItemServiceImpl implements CartItemService {
     public CartItemResponse updateCartItem(Integer id, UpdateCartItemRequest updateCartItemRequest) throws Exception {
 
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para actualizar");
+            throw new BadRequestException("Debe ingresar el id para actualizar");
         }
 
         if (updateCartItemRequest.getCartId() == null || updateCartItemRequest.getCartId() <= 0) {
-            throw new Exception("El campo cartId debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo cartId debe contener un valor mayor a 0");
         }
 
         if (updateCartItemRequest.getProductId() == null || updateCartItemRequest.getProductId() <= 0) {
-            throw new Exception("El campo productId debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo productId debe contener un valor mayor a 0");
         }
 
         if (updateCartItemRequest.getQuantity() == null || updateCartItemRequest.getQuantity() <= 0) {
-            throw new Exception("El campo quantity debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo quantity debe contener un valor mayor a 0");
         }
 
         CartItem cartItem = cartItemRepository.findById(id)
@@ -108,10 +110,10 @@ public class CartItemServiceImpl implements CartItemService {
                                 String.format("Item de carrito no encontrado con el id: %d", id)));
 
         Cart cart = cartRepository.findById(updateCartItemRequest.getCartId())
-                .orElseThrow(() -> new Exception("El carrito no existe"));
+                .orElseThrow(() -> new NotFoundException("El carrito no existe"));
 
         Product product = productRepository.findById(updateCartItemRequest.getProductId())
-                .orElseThrow(() -> new Exception("El producto no existe"));
+                .orElseThrow(() -> new NotFoundException("El producto no existe"));
 
         cartItem.setCart(cart);
         cartItem.setProduct(product);
@@ -124,9 +126,9 @@ public class CartItemServiceImpl implements CartItemService {
 
     @Override
     public void deleteCartItem(Integer id) throws Exception {
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para eliminar");
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para eliminar");
         if (!cartItemRepository.existsById(id))
-            throw new Exception(String.format("Item de carrito no encontrado con el id: %d", id));
+            throw new NotFoundException(String.format("Item de carrito no encontrado con el id: %d", id));
         cartItemRepository.deleteById(id);
     }
 }

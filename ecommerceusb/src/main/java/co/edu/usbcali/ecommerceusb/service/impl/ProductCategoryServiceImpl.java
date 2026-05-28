@@ -1,4 +1,6 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateProductCategoryRequest;
 import co.edu.usbcali.ecommerceusb.dto.ProductCategoryResponse;
@@ -43,7 +45,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     public ProductCategoryResponse getProductCategoryById(Integer id) throws Exception {
 
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
+            throw new BadRequestException("Debe ingresar el id para buscar");
         }
 
         ProductCategory productCategory = productCategoryRepository.findById(id)
@@ -60,19 +62,19 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
         if (createProductCategoryRequest.getProductId() == null ||
                 createProductCategoryRequest.getProductId() <= 0) {
-            throw new Exception("El campo productId debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo productId debe contener un valor mayor a 0");
         }
 
         if (createProductCategoryRequest.getCategoryId() == null ||
                 createProductCategoryRequest.getCategoryId() <= 0) {
-            throw new Exception("El campo categoryId debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo categoryId debe contener un valor mayor a 0");
         }
 
         Product product = productRepository.findById(createProductCategoryRequest.getProductId())
-                .orElseThrow(() -> new Exception("El producto no existe"));
+                .orElseThrow(() -> new NotFoundException("El producto no existe"));
 
         Category category = categoryRepository.findById(createProductCategoryRequest.getCategoryId())
-                .orElseThrow(() -> new Exception("La categoría no existe"));
+                .orElseThrow(() -> new NotFoundException("La categoría no existe"));
 
         ProductCategory productCategory = ProductCategoryMapper.createProductCategoryRequestToProductCategory(
                 product, category);
@@ -85,7 +87,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     public ProductCategoryResponse updateProductCategory(
             Integer id, UpdateProductCategoryRequest updateProductCategoryRequest) throws Exception {
 
-        throw new Exception(
+        throw new BadRequestException(
                 "No es posible actualizar una relación producto-categoría. " +
                 "La combinación product_id + category_id es única. " +
                 "Si necesita cambiarla, elimine este registro y cree uno nuevo con POST.");
@@ -93,9 +95,9 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public void deleteProductCategory(Integer id) throws Exception {
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para eliminar");
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para eliminar");
         if (!productCategoryRepository.existsById(id))
-            throw new Exception(String.format("Relación producto-categoría no encontrado con el id: %d", id));
+            throw new NotFoundException(String.format("Relación producto-categoría no encontrado con el id: %d", id));
         productCategoryRepository.deleteById(id);
     }
 }

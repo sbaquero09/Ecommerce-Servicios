@@ -1,4 +1,6 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 
 import co.edu.usbcali.ecommerceusb.dto.CategoryResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCategoryRequest;
@@ -35,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse getCategoryById(Integer id) throws Exception {
 
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
+            throw new BadRequestException("Debe ingresar el id para buscar");
         }
 
         Category category = categoryRepository.findById(id)
@@ -51,13 +53,13 @@ public class CategoryServiceImpl implements CategoryService {
 
         if (Objects.isNull(createCategoryRequest.getName()) ||
                 createCategoryRequest.getName().isBlank()) {
-            throw new Exception("El campo name no puede ser nulo ni vacío");
+            throw new BadRequestException("El campo name no puede ser nulo ni vacío");
         }
 
         Category parent = null;
         if (createCategoryRequest.getParentId() != null) {
             parent = categoryRepository.findById(createCategoryRequest.getParentId())
-                    .orElseThrow(() -> new Exception("La categoría padre no existe"));
+                    .orElseThrow(() -> new NotFoundException("La categoría padre no existe"));
         }
 
         Category category = Category.builder()
@@ -74,12 +76,12 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse updateCategory(Integer id, UpdateCategoryRequest updateCategoryRequest) throws Exception {
 
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para actualizar");
+            throw new BadRequestException("Debe ingresar el id para actualizar");
         }
 
         if (Objects.isNull(updateCategoryRequest.getName()) ||
                 updateCategoryRequest.getName().isBlank()) {
-            throw new Exception("El campo name no puede ser nulo ni vacío");
+            throw new BadRequestException("El campo name no puede ser nulo ni vacío");
         }
 
         Category category = categoryRepository.findById(id)
@@ -90,7 +92,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category parent = null;
         if (updateCategoryRequest.getParentId() != null) {
             parent = categoryRepository.findById(updateCategoryRequest.getParentId())
-                    .orElseThrow(() -> new Exception("La categoría padre no existe"));
+                    .orElseThrow(() -> new NotFoundException("La categoría padre no existe"));
         }
 
         category.setName(updateCategoryRequest.getName());
@@ -102,9 +104,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteCategory(Integer id) throws Exception {
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para eliminar");
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para eliminar");
         if (!categoryRepository.existsById(id))
-            throw new Exception(String.format("Categoría no encontrado con el id: %d", id));
+            throw new NotFoundException(String.format("Categoría no encontrado con el id: %d", id));
         categoryRepository.deleteById(id);
     }
 }

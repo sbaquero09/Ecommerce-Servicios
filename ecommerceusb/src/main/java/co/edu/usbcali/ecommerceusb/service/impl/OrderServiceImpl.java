@@ -1,4 +1,6 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateOrderRequest;
 import co.edu.usbcali.ecommerceusb.dto.OrderResponse;
@@ -32,25 +34,25 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse getOrderById(Integer id) throws Exception {
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para buscar");
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para buscar");
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Orden no encontrada con el id: %d", id)));
+                .orElseThrow(() -> new NotFoundException(String.format("Orden no encontrada con el id: %d", id)));
         return OrderMapper.modelToOrderResponse(order);
     }
 
     @Override
     public OrderResponse createOrder(CreateOrderRequest createOrderRequest) throws Exception {
         if (createOrderRequest.getUserId() == null || createOrderRequest.getUserId() <= 0)
-            throw new Exception("El campo userId debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo userId debe contener un valor mayor a 0");
         if (Objects.isNull(createOrderRequest.getStatus()) || createOrderRequest.getStatus().isBlank())
-            throw new Exception("El campo status no puede ser nulo ni vacío");
+            throw new BadRequestException("El campo status no puede ser nulo ni vacío");
         if (Objects.isNull(createOrderRequest.getTotalAmount()))
-            throw new Exception("El campo totalAmount no puede ser nulo");
+            throw new BadRequestException("El campo totalAmount no puede ser nulo");
         if (Objects.isNull(createOrderRequest.getCurrency()) || createOrderRequest.getCurrency().isBlank())
-            throw new Exception("El campo currency no puede ser nulo ni vacío");
+            throw new BadRequestException("El campo currency no puede ser nulo ni vacío");
 
         User user = userRepository.findById(createOrderRequest.getUserId())
-                .orElseThrow(() -> new Exception("El usuario no existe"));
+                .orElseThrow(() -> new NotFoundException("El usuario no existe"));
 
         Order order = OrderMapper.createOrderRequestToOrder(user,
                 Order.OrderStatus.valueOf(createOrderRequest.getStatus()),
@@ -61,20 +63,20 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse updateOrder(Integer id, UpdateOrderRequest updateOrderRequest) throws Exception {
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para actualizar");
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para actualizar");
         if (updateOrderRequest.getUserId() == null || updateOrderRequest.getUserId() <= 0)
-            throw new Exception("El campo userId debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo userId debe contener un valor mayor a 0");
         if (Objects.isNull(updateOrderRequest.getStatus()) || updateOrderRequest.getStatus().isBlank())
-            throw new Exception("El campo status no puede ser nulo ni vacío");
+            throw new BadRequestException("El campo status no puede ser nulo ni vacío");
         if (Objects.isNull(updateOrderRequest.getTotalAmount()))
-            throw new Exception("El campo totalAmount no puede ser nulo");
+            throw new BadRequestException("El campo totalAmount no puede ser nulo");
         if (Objects.isNull(updateOrderRequest.getCurrency()) || updateOrderRequest.getCurrency().isBlank())
-            throw new Exception("El campo currency no puede ser nulo ni vacío");
+            throw new BadRequestException("El campo currency no puede ser nulo ni vacío");
 
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Orden no encontrada con el id: %d", id)));
+                .orElseThrow(() -> new NotFoundException(String.format("Orden no encontrada con el id: %d", id)));
         User user = userRepository.findById(updateOrderRequest.getUserId())
-                .orElseThrow(() -> new Exception("El usuario no existe"));
+                .orElseThrow(() -> new NotFoundException("El usuario no existe"));
 
         order.setUser(user);
         order.setStatus(Order.OrderStatus.valueOf(updateOrderRequest.getStatus()));
@@ -86,9 +88,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void deleteOrder(Integer id) throws Exception {
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para eliminar");
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para eliminar");
         if (!orderRepository.existsById(id))
-            throw new Exception(String.format("Orden no encontrada con el id: %d", id));
+            throw new NotFoundException(String.format("Orden no encontrada con el id: %d", id));
         orderRepository.deleteById(id);
     }
 }

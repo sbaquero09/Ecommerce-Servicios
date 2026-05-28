@@ -1,4 +1,6 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 
 import co.edu.usbcali.ecommerceusb.dto.CreatePaymentRequest;
 import co.edu.usbcali.ecommerceusb.dto.PaymentResponse;
@@ -32,23 +34,23 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse getPaymentById(Integer id) throws Exception {
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para buscar");
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para buscar");
         Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Pago no encontrado con el id: %d", id)));
+                .orElseThrow(() -> new NotFoundException(String.format("Pago no encontrado con el id: %d", id)));
         return PaymentMapper.modelToPaymentResponse(payment);
     }
 
     @Override
     public PaymentResponse createPayment(CreatePaymentRequest createPaymentRequest) throws Exception {
         if (createPaymentRequest.getOrderId() == null || createPaymentRequest.getOrderId() <= 0)
-            throw new Exception("El campo orderId debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo orderId debe contener un valor mayor a 0");
         if (Objects.isNull(createPaymentRequest.getStatus()) || createPaymentRequest.getStatus().isBlank())
-            throw new Exception("El campo status no puede ser nulo ni vacío");
+            throw new BadRequestException("El campo status no puede ser nulo ni vacío");
         if (Objects.isNull(createPaymentRequest.getIdempotencyKey()) || createPaymentRequest.getIdempotencyKey().isBlank())
-            throw new Exception("El campo idempotencyKey no puede ser nulo ni vacío");
+            throw new BadRequestException("El campo idempotencyKey no puede ser nulo ni vacío");
 
         Order order = orderRepository.findById(createPaymentRequest.getOrderId())
-                .orElseThrow(() -> new Exception("La orden no existe"));
+                .orElseThrow(() -> new NotFoundException("La orden no existe"));
 
         Payment payment = PaymentMapper.createPaymentRequestToPayment(order,
                 Payment.PaymentStatus.valueOf(createPaymentRequest.getStatus()),
@@ -59,18 +61,18 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse updatePayment(Integer id, UpdatePaymentRequest updatePaymentRequest) throws Exception {
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para actualizar");
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para actualizar");
         if (updatePaymentRequest.getOrderId() == null || updatePaymentRequest.getOrderId() <= 0)
-            throw new Exception("El campo orderId debe contener un valor mayor a 0");
+            throw new BadRequestException("El campo orderId debe contener un valor mayor a 0");
         if (Objects.isNull(updatePaymentRequest.getStatus()) || updatePaymentRequest.getStatus().isBlank())
-            throw new Exception("El campo status no puede ser nulo ni vacío");
+            throw new BadRequestException("El campo status no puede ser nulo ni vacío");
         if (Objects.isNull(updatePaymentRequest.getIdempotencyKey()) || updatePaymentRequest.getIdempotencyKey().isBlank())
-            throw new Exception("El campo idempotencyKey no puede ser nulo ni vacío");
+            throw new BadRequestException("El campo idempotencyKey no puede ser nulo ni vacío");
 
         Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Pago no encontrado con el id: %d", id)));
+                .orElseThrow(() -> new NotFoundException(String.format("Pago no encontrado con el id: %d", id)));
         Order order = orderRepository.findById(updatePaymentRequest.getOrderId())
-                .orElseThrow(() -> new Exception("La orden no existe"));
+                .orElseThrow(() -> new NotFoundException("La orden no existe"));
 
         payment.setOrder(order);
         payment.setStatus(Payment.PaymentStatus.valueOf(updatePaymentRequest.getStatus()));
@@ -82,9 +84,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public void deletePayment(Integer id) throws Exception {
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para eliminar");
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para eliminar");
         if (!paymentRepository.existsById(id))
-            throw new Exception(String.format("Pago no encontrado con el id: %d", id));
+            throw new NotFoundException(String.format("Pago no encontrado con el id: %d", id));
         paymentRepository.deleteById(id);
     }
 }
