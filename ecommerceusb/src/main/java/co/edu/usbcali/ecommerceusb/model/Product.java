@@ -28,6 +28,7 @@ import java.time.OffsetDateTime;
 @Check(constraints = "price >= 0")
 public class Product {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
